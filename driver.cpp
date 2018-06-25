@@ -1,3 +1,15 @@
+//-----------------------------------------------
+/**
+ * The is the driver for LED implementation
+ *
+ * LED stands for Line oriented Editor that allows
+ * users to open, edit and save new or existing files.
+ *
+ * @author  Mandeep Ahlawat
+ * @version 1.0
+ * @since   2018-06-22
+ */
+//-----------------------------------------------
 #include "Led.h"
 #include <iostream>
 #include <string>

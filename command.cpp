@@ -1,9 +1,36 @@
+//-----------------------------------------------
+/**
+* The is the implementation file for command class which parses the
+* command and returns line Address1, line Address2 and symbol
+* to the LED object. It has various helper methods like check
+* validity, hasComma and trim to validate the command.
+*
+* Irrespective of input string format, it always returns a string in the format of x,yz
+* where x,y are line address 1 and line address 2 and z
+* is the command
+*
+* For example:
+* input : '1'        output : '1,1g'
+* input : '1,1'      output : '1,1g'
+* input : '1,1g'     output : '1,1g'
+*
+* @author  Mandeep Ahlawat
+* @version 1.0
+* @since   2018-06-22 
+*/
+//-----------------------------------------------
 #include <string>
 #include <iostream>
 #include "command.h"
 
 using namespace std;
 
+//-----------------------------------------------
+/*
+* Constructor for the class which initializes all the
+* variables to initial values
+*/
+//-----------------------------------------------
 Command::Command(){
     inputString = "";
     lineAddress1 = "";
@@ -13,6 +40,17 @@ Command::Command(){
     invalid = false;
 }
 
+
+//-----------------------------------------------
+/*
+* Removes leading and trailing white spaces and tabs
+* Searches the string for the first occurrence of non empty
+* spaces and then search for the last non empty space character
+* and sets the inputString member variable to new string
+
+* @param  str the string input to the parse method
+*/
+//-----------------------------------------------
 void Command::trimAndSetInputString(const string &str){
     const auto strBegin = str.find_first_not_of(" \t");
     if(strBegin == string::npos){
@@ -24,12 +62,30 @@ void Command::trimAndSetInputString(const string &str){
     inputString = str.substr(strBegin, strRange);
 }
 
+//-----------------------------------------------
+/*
+* Searches string for the ','
+
+* @return True or false based on if the inputString has
+*         a comma or not
+*/
+//-----------------------------------------------
 bool Command::hasComma(){
     if(inputString.find(',') != string::npos)
         return true;
     return false;
 }
 
+//-----------------------------------------------
+/*
+* Searches lineNumber to see if it only has digits
+
+* @param  lineNumber a constant string
+
+* @return True or false based on if the lineNumber
+*         has only digits or does it also has characters
+*/
+//-----------------------------------------------
 bool Command::onlyDigits(const string &lineNumber){
     for(char a : lineNumber){
         if(!isdigit(a)){
@@ -39,6 +95,18 @@ bool Command::onlyDigits(const string &lineNumber){
     return true;
 }
 
+//-----------------------------------------------
+/*
+* Searches lineNumber to see if it has valid symbols
+* A lineNumber can have valid symbol only if its size
+* is 1 and it's a character
+
+* @param  lineNumber a constant string
+
+* @return True or false based on if the lineNumber
+*         has a valid alphabet character
+*/
+//-----------------------------------------------
 bool Command::validAlpha(const string &lineNumber){
     if(isalpha(lineNumber[0]) && lineNumber.size() == 1){
         return true;
@@ -46,6 +114,18 @@ bool Command::validAlpha(const string &lineNumber){
     return false;
 }
 
+//-----------------------------------------------
+/*
+* Checks if the symbol entered is valid. All the valid
+* symbols are assigned in a string and that string is
+* searched for the input symbol to find if it's valid
+
+* @param  input constant char symbol
+
+* @return True or false based on if the input symbol
+*         is valid or not
+*/
+//-----------------------------------------------
 bool Command::validSymbol(const char &sym){
     string str = "aivudxrjpc-+gwq*";
     if(str.find_first_of(sym) != string::npos){
@@ -54,6 +134,20 @@ bool Command::validSymbol(const char &sym){
     return false;
 }
 
+//-----------------------------------------------
+/*
+* Checks if the string parsed by the parse method id valid
+* This function also checks for some flags like checkValidity
+* and invalid if they are set then it either skips the validation
+* or just return false and invalidate the command
+
+* @param currentLine, the current line in LED
+* @param lastLine, the last line in buffer of LED
+
+* @return True or false based on if the parsed command
+*         is valid or not
+*/
+//-----------------------------------------------
 bool Command::isValid(int currentLine, int lastLine){
     if(checkValidity){
         if(invalid){
@@ -95,9 +189,18 @@ bool Command::isValid(int currentLine, int lastLine){
     return true;
 }
 
+//-----------------------------------------------
+/*
+* Parsed the input string and transform it into a generic format
+* of the command, handles all the edge cases and strip all the symbols('.', '$')
+* from the lineAddress1 and lineAddress2 and assign the respective line numbers.
+
+* @param currentLine, the current line in LED
+* @param lastLine, the last line in buffer of LED
+* @param strCommand, the input command as a string
+*/
 void Command::parse(string strCommand, int currentLine, int lastLine){
     trimAndSetInputString(strCommand);
-//    inputString = strCommand;
     string stringCurrentLine = to_string(currentLine);
     string stringLastLine = to_string(lastLine);
     if(hasComma()){
@@ -228,6 +331,11 @@ void Command::parse(string strCommand, int currentLine, int lastLine){
         }
     }
     
+    // don't validate if the command symbol is 'q', i.e if user wants to quit
+    if(symbol == 'q'){
+        checkValidity = false;
+    }
+    
     // transform character symbols to line numbers for lineAddress1
     if(lineAddress1 == "."){
         lineAddress1 = stringCurrentLine;
@@ -243,6 +351,4 @@ void Command::parse(string strCommand, int currentLine, int lastLine){
     else if (lineAddress2 == "$"){
         lineAddress2 = stringLastLine;
     }
-    
-//    cout << lineAddress1 << "," << lineAddress2 << symbol << endl;
 }

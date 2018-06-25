@@ -1,3 +1,20 @@
+//-----------------------------------------------
+/**
+* The is the implementation file for LED class which takes a file name as input
+* from the user and reads the content from that file into the buffer
+
+* If no file name is specified then it initializes an empty buffer and enters
+* into the command mode, where user enters a command
+
+* This class directly interacts with the command class to parse the command entered
+* by the user, to transform it into a generic form and to validate it
+*
+*
+* @author  Mandeep Ahlawat
+* @version 1.0
+* @since   2018-06-22 
+*/
+//-----------------------------------------------
 #include "Led.h"
 #include "command.h"
 #include <string>
@@ -10,12 +27,26 @@
 
 using namespace std;
 
+//-----------------------------------------------
+/*
+* Constructor for the class which takes the file name
+* as input, if no file name is input then a blank string is used
+* as a default value. Checks if the file already exists on the
+* disk and sets the respective flags
+*/
+//-----------------------------------------------
 Led::Led(string filename) : currentLineNumber{0}, lastLineNumber{0} {
     fileName = filename;
     fileExists();
     unsavedData = false;
 }
 
+//-----------------------------------------------
+/*
+* Based on if the file exists or not, it print the standard
+* text on console and then starts the operations of LED
+*/
+//-----------------------------------------------
 void Led::run(){
     if(filePresent){
         cout << "\"" << fileName << "\" " << linesReadFromFileCount << " lines" << "\n" << "Entering command mode." << endl;
@@ -31,6 +62,14 @@ void Led::run(){
     parseCommand();
 }
 
+//-----------------------------------------------
+/*
+* Continously looks for a command on the console and interacts directly
+* with the command class to transform the input command into
+* generic format and then validate it and output the required information
+* on console if the command is valid or not.
+*/
+//-----------------------------------------------
 void Led::parseCommand(){
     cout <<"? ";
     string inputCommand;
@@ -44,10 +83,19 @@ void Led::parseCommand(){
         else{
             cout << "Invalid range" << endl;
         }
+        cin.clear();
         cout <<"? ";
     }
 }
 
+//-----------------------------------------------
+/*
+* Helper method to check if the passed file name in the
+* consturctor exists or not, if it exists then it reads
+* the data from the file and pushes it into buffer and
+* sets the value for current and last line numbers to end.
+*/
+//-----------------------------------------------
 void Led::fileExists(){
     ifstream ifs(fileName);
     if(ifs.good()){
@@ -68,10 +116,18 @@ void Led::fileExists(){
     ifs.close();
 }
 
-//void Led::readFileContent(ifstream ifs){
-//
-//}
 
+//-----------------------------------------------
+/*
+* Delegates the functionality to helper methods based
+* on the input command symbol
+
+* @param  l1, line address 1 in the command
+* @param  l2, line address 2 in the command
+* @param 	cmd, a valid command symbol 
+
+*/
+//-----------------------------------------------
 void Led::performCommand(int l1, int l2, char cmd){
     switch (cmd) {
         case 'i':
@@ -124,6 +180,12 @@ void Led::performCommand(int l1, int l2, char cmd){
     }
 }
 
+//-----------------------------------------------
+/*
+* Exits the LED and asks user to save the data
+* from buffer into a file, if there are any changes
+*/
+//-----------------------------------------------
 void Led::quit(){
     if(unsavedData){
         cout << "Save changes to file (y/n)? ";
@@ -150,6 +212,13 @@ void Led::quit(){
     }
 }
 
+//-----------------------------------------------
+/*
+* Writes buffer content into the filename passed
+* by the user, if no file name was passed then
+* asks user to input a file name.
+*/
+//-----------------------------------------------
 void Led::writeFile(){
     if(unsavedData){
         if(fileName == ""){
@@ -174,11 +243,20 @@ void Led::writeFile(){
     }
 }
 
+
+// Sets current line number and print the current line
 void Led::setCurrentLineAndPrint(int l1){
     currentLineNumber = l1;
     printLineRange(l1, l1);
 }
 
+//-----------------------------------------------
+/*
+* Moves the current line up by l1 parameter passed
+* if top of the buffer is reached then prints a message
+* and sets the current line as the 1st line
+*/
+//-----------------------------------------------
 void Led::moveCurrLineUp(int l1){
     currentLineNumber = currentLineNumber - l1;
     if(currentLineNumber <= 0){
@@ -187,6 +265,13 @@ void Led::moveCurrLineUp(int l1){
     }
 }
 
+//-----------------------------------------------
+/*
+* Moves the current line down by l1 parameter passed
+* if bottom of the buffer is reached then prints a message
+* and sets the current line as the last line
+*/
+//-----------------------------------------------
 void Led::moveCurrLineDown(int l1){
     currentLineNumber = currentLineNumber + l1;
     if(currentLineNumber > lastLineNumber){
@@ -195,6 +280,12 @@ void Led::moveCurrLineDown(int l1){
     }
 }
 
+//-----------------------------------------------
+/*
+* Prompts user to replace which content with what content
+* in between the line range of l1 and l2
+*/
+//-----------------------------------------------
 void Led::changeLineRange(int l1, int l2){
     cout << "Change What? ";
     string text;
@@ -221,6 +312,7 @@ void Led::changeLineRange(int l1, int l2){
     cout << "Changed " << changeOccurenceCount << " occurence(s)" << endl;
 }
 
+// Prints the content in between the line range l1 and l2
 void Led::printLineRange(int l1, int l2){
     if(buffer.size() == 0){
         cout << "empty buffer" << endl;
@@ -236,6 +328,12 @@ void Led::printLineRange(int l1, int l2){
     }
 }
 
+//-----------------------------------------------
+/*
+* Joines the lines in between range l1 and l2 and sets
+* the l1 line as joined result
+*/
+//-----------------------------------------------
 void Led::joinLineRange(int l1, int l2){
     list<string>::iterator it1;
     it1 = buffer.begin();
@@ -261,11 +359,19 @@ void Led::joinLineRange(int l1, int l2){
     setLastLineNumber();
 }
 
+//-----------------------------------------------
+/*
+* Deleted the data from buffer in between range l1 and l2
+* and asks the user to input the data and then places that content 
+* after l1
+*/
+//-----------------------------------------------
 void Led::replaceLineRange(int l1, int l2){
     deleteLineRange(l1, l2);
     Led::insertData(l1);
 }
 
+// delets the line range l1 and l2 from buffer and copies it into clipboard
 void Led::cutLineRange(int l1, int l2){
     list<string>::iterator it1, it2;
     it1 = it2 = buffer.begin();
@@ -276,6 +382,12 @@ void Led::cutLineRange(int l1, int l2){
     deleteLineRange(l1, l2);
 }
 
+//-----------------------------------------------
+/*
+* deletes content in between line range l1 and l2
+* both are inclusive
+*/
+//-----------------------------------------------
 void Led::deleteLineRange(int l1, int l2){
     // deletes elements in range l1 and l2, both included, need to confirm if both are included?
     list<string>::iterator it1, it2;
@@ -296,22 +408,23 @@ void Led::deleteLineRange(int l1, int l2){
     setLastLineNumber();
 }
 
+//-----------------------------------------------
+/*
+* pastes data above the line number specified, l1
+*/
+//-----------------------------------------------
 void Led::pasteDataAbove(int l1){
-    list<string>::iterator position = buffer.begin();
-    advance(position, l1-1);
-    
-    for(auto const &a : clipboard){
-        buffer.insert(position, a);
-    }
-    
-    setUnSavedData();
-    currentLineNumber = (int) distance(buffer.begin(), position); // advance counts 0 as well so need to add 1 here
-    setLastLineNumber();
+    pasteData(l1-1);
 }
 
+//-----------------------------------------------
+/*
+* pastes data after the line number specified 
+*/
+//-----------------------------------------------
 void Led::pasteData(int l1){
     list<string>::iterator position = buffer.begin();
-    advance(position, l1-1);
+    advance(position, l1);
     
     for(auto const &a : clipboard){
         buffer.insert(position, a);
@@ -321,16 +434,22 @@ void Led::pasteData(int l1){
     setLastLineNumber();
 }
 
+//-----------------------------------------------
+/*
+* Inserts the data into the buffer at the line number
+* specified in the parameter
+*/
+//-----------------------------------------------
 void Led::insertData(int l1){
     string line;
     list<string>::iterator position = buffer.begin();
-    advance(position, l1-1); // need to subtract 1 here becuase list index starts from 0 and we want to insert data before l2
+    if(l1 > 0){
+        // if empty then don't subtract otherwise it'll cause it to go negative and it fails in windows
+        advance(position, l1-1); // need to subtract 1 here becuase list index starts from 0 and we want to insert data before l2
+    }
     
     while(getline(cin, line)){
         if(buffer.size() > 0 || line.size() > 0){
-            if(line == ";"){
-                break;
-            }
             buffer.insert(position, line);
             setUnSavedData();
         }
@@ -340,6 +459,12 @@ void Led::insertData(int l1){
     setLastLineNumber();
 }
 
+//-----------------------------------------------
+/*
+* Appends the data into the buffer after the line number
+* specified in the parameter
+*/
+//-----------------------------------------------
 void Led::appendData(int l1){
     string line;
     list<string>::iterator position = buffer.begin();
@@ -348,9 +473,6 @@ void Led::appendData(int l1){
     
     while(getline(cin, line)){
         if(buffer.size() > 0 || line.size() > 0){
-            if(line == ";"){
-                break;
-            }
             buffer.insert(position, line);
             setUnSavedData();
         }
@@ -359,6 +481,7 @@ void Led::appendData(int l1){
     setLastLineNumber();
 }
 
+// helper method to set the lastLineNumber
 void Led::setLastLineNumber(){
     int size = int(buffer.size());
     if(size >= 1){
@@ -369,6 +492,7 @@ void Led::setLastLineNumber(){
     }
 }
 
+// helper method to set the flag that data is changed.
 void Led::setUnSavedData(){
     if(!unsavedData){
         unsavedData = true;

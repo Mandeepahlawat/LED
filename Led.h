@@ -1,3 +1,20 @@
+//-----------------------------------------------
+/**
+* The is the header file for LED class which takes a file name as input
+* from the user and reads the content from that file into the buffer
+
+* If no file name is specified then it initializes an empty buffer and enters
+* into the command mode, where user enters a command
+
+* This class directly interacts with the command class to parse the command entered
+* by the user, to transform it into a generic form and to validate it
+*
+*
+* @author  Mandeep Ahlawat
+* @version 1.0
+* @since   2018-06-22 
+*/
+//-----------------------------------------------
 #ifndef LED_H
 #define LED_H
 #include <iostream>
@@ -15,9 +32,12 @@ class Led{
     bool filePresent;
     bool unsavedData;
     int linesReadFromFileCount;
-    void parseCommand();
-    void setLastLineNumber();
-    void setUnSavedData();
+    void parseCommand(); // continously looks for a command symbol and perform commands based on the input
+    void setLastLineNumber(); // sets the last line number of the buffer.
+    void setUnSavedData(); // sets the flag that the content is changed.
+
+    void fileExists(); // checks if the filename entered exists or not
+    void performCommand(int, int, char); // this function checks for the input char symbol and performs the operations based on it
     
     // LED operations
     void insertData(int);
@@ -39,13 +59,7 @@ class Led{
     
     public:
     
-    Led(std::string="");
-    void run();
-
-    void fileExists();
-    
-    void performCommand(int, int, char);
-    
-    
+    Led(std::string=""); // ctor
+    void run();    // method to run the operations of the LED
 };
 #endif
