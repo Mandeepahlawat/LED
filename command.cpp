@@ -223,7 +223,7 @@ void Command::parse(string strCommand, int currentLine, int lastLine){
             }
             else{
                 if(!isspace(inputString[temp])){
-                    if(validSymbol(inputString[temp])){
+                    if(validSymbol(inputString[temp]) && symbol == '\0'){
                         symbol = symbol + inputString[temp];
                     }
                     else{
@@ -280,7 +280,7 @@ void Command::parse(string strCommand, int currentLine, int lastLine){
         }
         else{
             // only command symbol is present
-            if(validSymbol(inputString[temp])){
+            if(validSymbol(inputString[temp]) && inputString.size() == 1){
                 symbol = symbol + inputString[temp];
             }
             else{
