@@ -261,7 +261,7 @@ void Command::parse(string strCommand, int currentLine, int lastLine){
                 }
                 else{
                     if(!isspace(inputString[temp])){
-                        if(validSymbol(inputString[temp])){
+                        if(validSymbol(inputString[temp]) && symbol == '\0'){
                             symbol = symbol + inputString[temp];
                         }
                         else{
